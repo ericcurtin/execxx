@@ -45,6 +45,10 @@ std::string qx(const std::vector<std::string>& args,
   char buffer[buf_size];
   do {
     const ssize_t r = read(stdout_fds[0], buffer, buf_size);
+    if (r <= 0) {
+      break;
+    }
+
     if (r > 0) {
       out.append(buffer, r);
     }
@@ -55,7 +59,10 @@ std::string qx(const std::vector<std::string>& args,
   if (!inc_stderr) {
     close(stderr_fds[1]);
     do {
-      read(stderr_fds[0], buffer, buf_size);
+      const ssize_t r = read(stderr_fds[0], buffer, buf_size);
+      if (r <= 0) {
+        break;
+      }
     } while (errno == EAGAIN || errno == EINTR);
 
     close(stderr_fds[0]);
